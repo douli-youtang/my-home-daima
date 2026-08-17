@@ -1,0 +1,163 @@
+:root {
+  --mi-orange: #ff6900;
+  --mi-orange-hover: #ff8533;
+  --mi-orange-pressed: #e65c00;
+  --mi-orange-soft: rgba(255, 105, 0, 0.08);
+  --mi-orange-border: rgba(255, 105, 0, 0.22);
+  --mi-ink: #1a1a1a;
+  --mi-ink-2: #4d4d4d;
+  --mi-ink-3: #8a8a8a;
+  --mi-bg: #f5f5f5;
+  --mi-card: #ffffff;
+  --mi-radius: 16px;
+  --mi-radius-sm: 12px;
+  --mi-shadow: 0 4px 24px rgba(26, 26, 26, 0.06);
+  --mi-shadow-hover: 0 8px 28px rgba(255, 105, 0, 0.12);
+  --el-color-primary: #ff6900;
+  --el-color-primary-light-3: #ff8533;
+  --el-color-primary-light-5: #ffa366;
+  --el-color-primary-light-7: #ffc299;
+  --el-color-primary-light-8: #ffd1b3;
+  --el-color-primary-light-9: #ffe8d9;
+  --el-color-primary-dark-2: #e65c00;
+  --el-border-radius-base: 10px;
+  --el-border-radius-small: 8px;
+  --el-font-family: "MiSans", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#__nuxt {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--mi-ink);
+  background: var(--mi-bg);
+  font-family: "MiSans", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--mi-orange);
+  text-decoration: none;
+}
+
+.mi-page-enter-active,
+.mi-page-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.mi-page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.mi-page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.mi-card {
+  background: var(--mi-card);
+  border-radius: var(--mi-radius);
+  box-shadow: var(--mi-shadow);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.mi-card:hover {
+  box-shadow: var(--mi-shadow-hover);
+}
+
+.mi-press {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.mi-press:active {
+  transform: scale(0.97);
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--mi-orange);
+  --el-button-border-color: var(--mi-orange);
+  --el-button-hover-bg-color: var(--mi-orange-hover);
+  --el-button-hover-border-color: var(--mi-orange-hover);
+  --el-button-active-bg-color: var(--mi-orange-pressed);
+  --el-button-active-border-color: var(--mi-orange-pressed);
+  font-weight: 600;
+}
+
+.el-menu {
+  border-right: none !important;
+}
+
+.el-table {
+  --el-table-header-bg-color: #fafafa;
+  --el-table-row-hover-bg-color: var(--mi-orange-soft);
+  border-radius: var(--mi-radius-sm);
+  overflow: hidden;
+}
+
+.el-table .el-table__row {
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.el-input__wrapper,
+.el-textarea__inner {
+  border-radius: 10px !important;
+  box-shadow: 0 0 0 1px #ebebeb inset !important;
+}
+.el-input__wrapper.is-focus,
+.el-textarea__inner:focus {
+  box-shadow: 0 0 0 1px var(--mi-orange) inset !important;
+}
+
+.el-dialog {
+  border-radius: 18px !important;
+  overflow: hidden;
+}
+
+.el-drawer {
+  --el-drawer-bg-color: #fff;
+}
+
+.el-pagination.is-background .el-pager li.is-active {
+  background-color: var(--mi-orange) !important;
+}
+
+.mi-stat-num {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--mi-ink);
+}
+
+.mi-muted {
+  color: var(--mi-ink-3);
+  font-size: 13px;
+}
+
+.mi-section-title {
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.mi-hero-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(255, 105, 0, 0.18), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgba(255, 133, 51, 0.12), transparent 50%),
+    linear-gradient(180deg, #fff 0%, #f5f5f5 100%);
+}

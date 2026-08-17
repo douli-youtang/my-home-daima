@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+asyncpg
+pydantic-settings
+loguru
+python-dotenv
+oss2
+anyio

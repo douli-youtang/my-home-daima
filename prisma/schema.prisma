@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum PointStatus {
+  active
+  inactive
+}
+
+enum UserStatus {
+  active
+  inactive
+}
+
+enum SubmitterType {
+  system_user
+  custom
+}
+
+// ---------- Models ----------
+
+/// 角色表（可配置；系统角色不可删）
+model Role {
+  id          String     @id @db.VarChar(32)
+  code        String     @unique @db.VarChar(64)
+  name        String     @db.VarChar(50)
+  description String?    @db.VarChar(255)
+  isSystem    Boolean    @default(false) @map("is_system")
+  status      UserStatus @default(active)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  permissions RolePermission[]
+  users       User[]
+
+  @@index([status])
+  @@map("roles")
+}
+
+/// 角色权限（permission_key 如 menu:points / btn:points.create）
+model RolePermission {
+  id            String @id @db.VarChar(32)
+  roleId        String @map("role_id") @db.VarChar(32)
+  permissionKey String @map("permission_key") @db.VarChar(100)
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionKey])
+  @@index([roleId])
+  @@map("role_permissions")
+}
+
+/// 点位表：物理位置 / 二维码对应的点位
+model Point {
+  id          String      @id @db.VarChar(32)
+  code        String      @unique @db.VarChar(64)
+  name        String      @db.VarChar(100)
+  description String?     @db.Text
+  status      PointStatus @default(active)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  deletedAt   DateTime?   @map("deleted_at")
+
+  template    FormTemplate?
+  submissions FormSubmission[]
+  logs        OperationLog[]
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("points")
+}
+
+/// 表单模板表：每个点位关联一个模板，fields 为动态字段定义 JSON
+model FormTemplate {
+  id        String   @id @db.VarChar(32)
+  pointId   String   @unique @map("point_id") @db.VarChar(32)
+  name      String   @db.VarChar(100)
+  fields    Json
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  point       Point            @relation(fields: [pointId], references: [id])
+  submissions FormSubmission[]
+
+  @@map("form_templates")
+}
+
+/// 系统用户表
+model User {
+  id                 String     @id @db.VarChar(32)
+  openid             String     @unique @db.VarChar(64)
+  name               String     @db.VarChar(50)
+  /// 密码哈希（bcrypt），为空表示未设置密码
+  password           String?    @default("") @db.VarChar(255)
+  /// 是否必须修改密码（首次登录 / 管理员重置后）
+  mustChangePassword Boolean    @default(true) @map("must_change_password")
+  roleId             String     @map("role_id") @db.VarChar(32)
+  avatar             String?    @db.VarChar(255)
+  status             UserStatus @default(active)
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
+
+  role           Role             @relation(fields: [roleId], references: [id])
+  deletedRecords FormSubmission[] @relation("SubmissionDeleter")
+  operationLogs  OperationLog[]
+
+  @@index([roleId])
+  @@index([status])
+  @@index([name])
+  @@map("users")
+}
+
+/// 表单提交记录（含软删除字段，供维护员标记错误记录）
+model FormSubmission {
+  id              String        @id @db.VarChar(32)
+  pointId         String        @map("point_id") @db.VarChar(32)
+  templateId      String        @map("template_id") @db.VarChar(32)
+  /// 提交时模板版本号
+  templateVersion Int           @map("template_version")
+  /// 提交时模板 fields 完整快照
+  fieldsSnapshot  Json          @map("fields_snapshot")
+  /// 提交人显示名（系统用户名或自定义）
+  submittedBy     String        @map("submitted_by") @db.VarChar(100)
+  /// 提交人 openid（用于校验谁可修改）
+  submitterOpenid String        @default("") @map("submitter_openid") @db.VarChar(64)
+  submitterType   SubmitterType @map("submitter_type")
+  /// 实际填值：{ fieldId: value }（始终为最新结果）
+  data            Json
+  /// 图片 Key 列表（OSS fileKey）
+  images          Json          @default("[]")
+  /// 已修改次数（最多 2 次）
+  editCount       Int           @default(0) @map("edit_count")
+  isDeleted       Boolean       @default(false) @map("is_deleted")
+  deletedBy       String?       @map("deleted_by") @db.VarChar(32)
+  deletedAt       DateTime?     @map("deleted_at")
+  submittedAt     DateTime      @default(now()) @map("submitted_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  point    Point        @relation(fields: [pointId], references: [id])
+  template FormTemplate @relation(fields: [templateId], references: [id])
+  deleter  User?        @relation("SubmissionDeleter", fields: [deletedBy], references: [id])
+  edits    FormSubmissionEdit[]
+
+  @@index([pointId])
+  @@index([templateId])
+  @@index([submittedBy])
+  @@index([submitterOpenid])
+  @@index([isDeleted])
+  @@index([submittedAt])
+  @@map("form_submissions")
+}
+
+/// 提交修改历史（每次修改一条，最多 2 条）
+model FormSubmissionEdit {
+  id                String   @id @db.VarChar(32)
+  submissionId      String   @map("submission_id") @db.VarChar(32)
+  /// 第几次修改：1 或 2
+  sequence          Int
+  beforeData        Json     @map("before_data")
+  afterData         Json     @map("after_data")
+  beforeImages      Json     @map("before_images")
+  afterImages       Json     @map("after_images")
+  beforeSubmittedBy String   @map("before_submitted_by") @db.VarChar(100)
+  afterSubmittedBy  String   @map("after_submitted_by") @db.VarChar(100)
+  editedByOpenid    String   @map("edited_by_openid") @db.VarChar(64)
+  editedByName      String   @map("edited_by_name") @db.VarChar(50)
+  editedAt          DateTime @default(now()) @map("edited_at")
+
+  submission FormSubmission @relation(fields: [submissionId], references: [id])
+
+  @@unique([submissionId, sequence])
+  @@index([submissionId])
+  @@index([editedAt])
+  @@map("form_submission_edits")
+}
+
+/// 系统配置表（key-value）
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique @db.VarChar(64)
+  value       Json
+  description String?  @db.VarChar(255)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
+
+/// 操作日志表：维护员/管理员关键操作审计
+model OperationLog {
+  id        String   @id @db.VarChar(32)
+  userId    String   @map("user_id") @db.VarChar(32)
+  /// 可选关联点位，便于按点位追溯
+  pointId   String?  @map("point_id") @db.VarChar(32)
+  action    String   @db.VarChar(50)
+  targetId  String?  @map("target_id") @db.VarChar(32)
+  detail    Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User   @relation(fields: [userId], references: [id])
+  point Point? @relation(fields: [pointId], references: [id])
+
+  @@index([userId])
+  @@index([pointId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("operation_logs")
+}

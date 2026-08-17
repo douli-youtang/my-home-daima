@@ -1,0 +1,6 @@
+{
+  "npm.autoDetect": "off",
+  "task.autoDetect": "off",
+  "npm.packageManager": "npm",
+  "npm.scriptRunner": "npm"
+}
