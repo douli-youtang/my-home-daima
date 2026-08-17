@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import { MIN_PASSWORD_LENGTH } from "./password-policy";
 
+export { MIN_PASSWORD_LENGTH };
+
 const SALT_ROUNDS = 10;
 
 export async function hashPassword(plain: string): Promise<string> {

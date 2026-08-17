@@ -1,11 +1,11 @@
-import { fail, success } from "../../utils/response";
+import { fail, success } from "~~/server/utils/response";
 import {
   hashPassword,
   isValidPasswordLength,
   verifyPassword,
   MIN_PASSWORD_LENGTH,
-} from "../../utils/password";
-import prisma from "../../utils/prisma";
+} from "~~/server/utils/password";
+import prisma from "~~/server/utils/prisma";
 
 /**
  * POST /api/password/change

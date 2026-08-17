@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
         userId: user.id,
         action: "grant_role",
         targetId: id,
-        detail: { code: role.code, permissions: keys },
+        detail: { code: role.code, name: role.name, permissions: keys },
       },
     });
 

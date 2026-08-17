@@ -1,7 +1,7 @@
-import { fail, success } from "../../../utils/response";
-import { requireAdminUser } from "../../../utils/admin";
-import { createId } from "../../../utils/id";
-import prisma from "../../../utils/prisma";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import { createId } from "~~/server/utils/id";
+import prisma from "~~/server/utils/prisma";
 
 /** DELETE /api/admin/records/[id] 软删除 */
 export default defineEventHandler(async (event) => {

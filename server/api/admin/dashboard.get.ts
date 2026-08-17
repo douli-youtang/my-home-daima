@@ -1,8 +1,8 @@
-import { fail, success } from "../../utils/response";
-import { requireAdminUser } from "../../utils/admin";
-import { getActionLabel } from "../../utils/operation-actions";
-import prisma from "../../utils/prisma";
-import { resolveSubmitterNames } from "../../utils/submitter-names";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import { formatOperationLog } from "~~/server/utils/operation-log-format";
+import prisma from "~~/server/utils/prisma";
+import { resolveSubmitterNames } from "~~/server/utils/submitter-names";
 
 const TZ = "Asia/Shanghai";
 
@@ -162,11 +162,15 @@ export default defineEventHandler(async (event) => {
 
     const activities: Activity[] = [
       ...recentLogs.map((log) => {
-        const pointName = log.point?.name;
-        const label = getActionLabel(log.action);
-        const text = pointName
-          ? `${log.user.name} ${label}「${pointName}」`
-          : `${log.user.name} ${label}`;
+        const formatted = formatOperationLog(log.action, log.detail, {
+          pointName: log.point?.name,
+          pointCode: log.point?.code,
+        });
+        const objectHint =
+          formatted.targetName && formatted.targetName !== "-"
+            ? `「${formatted.targetName}」`
+            : "";
+        const text = `${log.user.name} ${formatted.title}${objectHint}`;
         return {
           id: `log-${log.id}`,
           time: formatActivityTime(log.createdAt, now),

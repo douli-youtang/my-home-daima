@@ -1,11 +1,11 @@
-import { fail, success } from "../../utils/response";
-import prisma from "../../utils/prisma";
-import { summarizeSubmissionData } from "../../utils/submission-utils";
-import { resolveSubmitterNames } from "../../utils/submitter-names";
+import { fail, success } from "~~/server/utils/response";
+import prisma from "~~/server/utils/prisma";
+import { summarizeSubmissionData } from "~~/server/utils/submission-utils";
+import { resolveSubmitterNames } from "~~/server/utils/submitter-names";
 import type {
   FormFieldDefinition,
   FormFieldValues,
-} from "../../utils/types/types/form-fields";
+} from "~~/shared/types/form-fields";
 
 /**
  * GET /api/records/[scene]?openid=xxx
@@ -26,12 +26,12 @@ export default defineEventHandler(async (event) => {
       return fail("openid 不能为空");
     }
 
-    const user = await prisma.user.findUnique({ where: { openid } });
+    const user = await prisma.user.findUnique({ where: { openid }, include: { role: { select: { code: true } } } });
     if (!user || user.status !== "active") {
       setResponseStatus(event, 403);
       return fail("用户未授权");
     }
-    if (user.role !== "admin" && user.role !== "maintainer") {
+    if (user.role.code !== "admin" && user.role.code !== "maintainer") {
       setResponseStatus(event, 403);
       return fail("无权限访问");
     }

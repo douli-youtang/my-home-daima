@@ -1,8 +1,8 @@
-import { fail, success } from "../../utils/response";
+import { fail, success } from "~~/server/utils/response";
 import {
   getSystemSettings,
   toSubmissionPolicy,
-} from "../../utils/system-settings";
+} from "~~/server/utils/system-settings";
 
 /** 公开配置：系统名称 + 填表策略（前端展示提示用） */
 export default defineEventHandler(async (event) => {

@@ -1,19 +1,26 @@
-import { fail, success } from "../utils/response";
-import { isAdminRole } from "../utils/admin";
-import { verifyPassword } from "../utils/password";
-import prisma from "../utils/prisma";
+import { fail, success } from "~~/server/utils/response";
+import { isAdminRole, loadUserWithRole } from "~~/server/utils/admin";
+import { verifyPassword } from "~~/server/utils/password";
+import prisma from "~~/server/utils/prisma";
 
 function toLoginData(user: {
-  role: string;
+  roleCode: string;
+  roleName: string;
+  roleId: string;
   name: string;
   openid: string;
   mustChangePassword: boolean;
+  permissions: string[];
 }) {
   return {
-    role: user.role,
+    role: user.roleCode,
+    roleCode: user.roleCode,
+    roleName: user.roleName,
+    roleId: user.roleId,
     name: user.name,
     openid: user.openid,
     mustChangePassword: Boolean(user.mustChangePassword),
+    permissions: user.permissions,
   };
 }
 
@@ -31,40 +38,49 @@ export default defineEventHandler(async (event) => {
       return fail("请提供 openid 或 name");
     }
 
-    let user = null;
-
+    // 扫码/会话恢复：仅 openid，不校验密码
     if (openid && !name) {
-      // 扫码/会话恢复：仅 openid，不校验密码
-      user = await prisma.user.findUnique({ where: { openid } });
-      if (!user || user.status !== "active") {
+      const authed = await loadUserWithRole(openid);
+      if (!authed) {
         return fail("用户不存在，请联系管理员");
       }
-      if (scope === "admin" && !isAdminRole(user.role)) {
+      if (scope === "admin" && !isAdminRole(authed.roleCode)) {
         return fail("作业人员无法登录管理后台，请通过扫码进入");
       }
-      return success(toLoginData(user), "success");
+      return success(toLoginData(authed), "success");
     }
 
-    // 账号密码登录：按姓名查，未命中则按工号（openid）再查
-    user = await prisma.user.findFirst({ where: { name } });
-    if (!user) {
-      user = await prisma.user.findUnique({ where: { openid: name } });
+    // 账号密码登录：优先按姓名，其次按工号（openid，如 admin）
+    let row = await prisma.user.findFirst({
+      where: { name },
+      select: { openid: true, password: true, status: true },
+    });
+    if (!row) {
+      row = await prisma.user.findUnique({
+        where: { openid: name },
+        select: { openid: true, password: true, status: true },
+      });
     }
 
-    if (!user || user.status !== "active") {
+    if (!row || row.status !== "active") {
       return fail("用户不存在，请联系管理员");
     }
 
-    const ok = await verifyPassword(password, user.password);
+    const ok = await verifyPassword(password, row.password);
     if (!ok) {
       return fail("密码错误");
     }
 
-    if (scope === "admin" && !isAdminRole(user.role)) {
+    const authed = await loadUserWithRole(row.openid);
+    if (!authed) {
+      return fail("用户不存在，请联系管理员");
+    }
+
+    if (scope === "admin" && !isAdminRole(authed.roleCode)) {
       return fail("作业人员无法登录管理后台，请通过扫码进入");
     }
 
-    return success(toLoginData(user), "success");
+    return success(toLoginData(authed), "success");
   } catch (error) {
     console.error("login error:", error);
     setResponseStatus(event, 500);

@@ -162,18 +162,26 @@ async function main() {
     workerRoleId,
     hashedPassword
   );
+  // 兼容旧种子账号
   const admin = await upsertUser(
     "admin_test",
     "管理员",
     adminRoleId,
     hashedPassword
   );
+  // 超级管理员：账号 admin，默认密码 123456
   const superAdmin = await upsertUser(
     "admin",
-    "最高管理员",
+    "admin",
     adminRoleId,
     hashedPassword
   );
+
+  // 超级管理员首次可用，不强制改密
+  await prisma.user.update({
+    where: { openid: "admin" },
+    data: { mustChangePassword: false, name: "admin" },
+  });
 
   const existingPoint = await prisma.point.findUnique({
     where: { code: "qr_test_001" },

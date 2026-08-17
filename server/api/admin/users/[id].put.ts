@@ -1,13 +1,13 @@
 import type { UserRole, UserStatus } from "@prisma/client";
-import { fail, success } from "../../../utils/response";
-import { requireAdminUser } from "../../../utils/admin";
-import { createId } from "../../../utils/id";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import { createId } from "~~/server/utils/id";
 import {
   hashPassword,
   isValidPasswordLength,
   MIN_PASSWORD_LENGTH,
-} from "../../../utils/password";
-import prisma from "../../../utils/prisma";
+} from "~~/server/utils/password";
+import prisma from "~~/server/utils/prisma";
 
 const ROLES: UserRole[] = ["worker", "maintainer", "admin"];
 const STATUSES: UserStatus[] = ["active", "inactive"];

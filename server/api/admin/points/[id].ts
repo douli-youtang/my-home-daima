@@ -1,8 +1,8 @@
 import type { PointStatus } from "@prisma/client";
-import { fail, success } from "../../../utils/response";
-import { requireAdminUser } from "../../../utils/admin";
-import { createId } from "../../../utils/id";
-import prisma from "../../../utils/prisma";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import { createId } from "~~/server/utils/id";
+import prisma from "~~/server/utils/prisma";
 
 function toPointItem(point: {
   id: string;

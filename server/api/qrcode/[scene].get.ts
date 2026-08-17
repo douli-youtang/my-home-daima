@@ -1,6 +1,6 @@
-import { fail, success } from "../../utils/response";
-import prisma from "../../utils/prisma";
-import type { FormFieldDefinition } from "../../utils/types/types/form-fields";
+import { fail, success } from "~~/server/utils/response";
+import prisma from "~~/server/utils/prisma";
+import type { FormFieldDefinition } from "~~/shared/types/form-fields";
 
 export default defineEventHandler(async (event) => {
   try {

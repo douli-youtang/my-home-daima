@@ -1,5 +1,5 @@
-import { fail, success } from "../utils/response";
-import { getSignedUrl, isValidFileKey } from "../utils/oss";
+import { fail, success } from "~~/server/utils/response";
+import { getSignedUrl, isValidFileKey } from "~~/server/utils/oss";
 
 export default defineEventHandler(async (event) => {
   try {

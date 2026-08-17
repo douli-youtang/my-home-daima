@@ -1,9 +1,9 @@
 import type { PointStatus } from "@prisma/client";
-import { fail, success } from "../../utils/response";
-import { requireAdminUser } from "../../utils/admin";
-import { createId } from "../../utils/id";
-import { generatePointCode } from "../../utils/point-code";
-import prisma from "../../utils/prisma";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import { createId } from "~~/server/utils/id";
+import { formatPointCode, maxPointCodeSeq } from "~~/server/utils/point-code";
+import prisma from "~~/server/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -21,12 +21,15 @@ export default defineEventHandler(async (event) => {
       return fail("点位名称不能为空");
     }
 
-    let code = generatePointCode();
-    // 极端情况下避免 code 冲突
-    for (let i = 0; i < 3; i++) {
-      const exists = await prisma.point.findUnique({ where: { code } });
-      if (!exists) break;
-      code = generatePointCode();
+    // 含已删除点位，避免编码复用冲突
+    const existing = await prisma.point.findMany({ select: { code: true } });
+    let seq = maxPointCodeSeq(existing.map((p) => p.code)) + 1;
+    let code = formatPointCode(seq);
+    for (let i = 0; i < 1000; i++) {
+      const conflict = await prisma.point.findUnique({ where: { code } });
+      if (!conflict) break;
+      seq += 1;
+      code = formatPointCode(seq);
     }
 
     const pointId = createId();

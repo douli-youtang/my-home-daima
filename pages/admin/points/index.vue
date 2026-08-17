@@ -5,7 +5,14 @@
         <h1 class="mi-section-title">点位管理</h1>
         <p class="mi-muted">共 {{ total }} 个点位</p>
       </div>
-      <el-button v-if="isAdmin" type="primary" round @click="openCreate">新增点位</el-button>
+      <el-button
+        v-if="can('btn:points.create')"
+        type="primary"
+        round
+        @click="openCreate"
+      >
+        新增点位
+      </el-button>
     </div>
 
     <div class="mi-card filters">
@@ -53,18 +60,45 @@
           <template #default="{ row }">
             <div class="ops">
               <el-button link type="primary" @click="goDetail(row.id)">详情</el-button>
-              <el-button v-if="isAdmin" link type="primary" @click="openEdit(row)">编辑</el-button>
-              <el-button v-if="isAdmin" link type="primary" @click="goTemplate(row.id)">模板</el-button>
-              <el-button link @click="downloadQr(row.code)">下载二维码</el-button>
               <el-button
-                v-if="isAdmin"
+                v-if="can('btn:points.edit')"
+                link
+                type="primary"
+                @click="openEdit(row)"
+              >
+                编辑
+              </el-button>
+              <el-button
+                v-if="can('btn:points.template')"
+                link
+                type="primary"
+                @click="goTemplate(row.id)"
+              >
+                模板
+              </el-button>
+              <el-button
+                v-if="can('btn:points.qr')"
+                link
+                @click="downloadQr(row.code)"
+              >
+                下载二维码
+              </el-button>
+              <el-button
+                v-if="can('btn:points.edit')"
                 link
                 type="warning"
                 @click="toggleStatus(row)"
               >
                 {{ row.status === "active" ? "失效" : "生效" }}
               </el-button>
-              <el-button v-if="isAdmin" link type="danger" @click="handleDelete(row)">删除</el-button>
+              <el-button
+                v-if="can('btn:points.delete')"
+                link
+                type="danger"
+                @click="handleDelete(row)"
+              >
+                删除
+              </el-button>
             </div>
           </template>
         </el-table-column>
@@ -132,10 +166,9 @@ type AdminPointItem = {
 };
 
 const { adminRequest } = useApi();
-const { getAdminSession } = useSession();
+const { can } = usePermission();
 const router = useRouter();
 
-const isAdmin = ref(false);
 const keyword = ref("");
 const status = ref("");
 const list = ref<AdminPointItem[]>([]);
@@ -155,8 +188,6 @@ const form = reactive({
 });
 
 onMounted(() => {
-  const session = getAdminSession();
-  isAdmin.value = session?.role === "admin";
   load();
 });
 

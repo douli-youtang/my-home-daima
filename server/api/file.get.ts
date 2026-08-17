@@ -1,5 +1,5 @@
-import { fail } from "../utils/response";
-import { getObject, isValidFileKey } from "../utils/oss";
+import { fail } from "~~/server/utils/response";
+import { getObject, isValidFileKey } from "~~/server/utils/oss";
 
 /**
  * 通过本站域名代理私有 OSS 图片。

@@ -1,7 +1,7 @@
 import type { H3Event } from "h3";
 import QRCode from "qrcode";
-import { fail } from "../../../utils/response";
-import prisma from "../../../utils/prisma";
+import { fail } from "~~/server/utils/response";
+import prisma from "~~/server/utils/prisma";
 
 function buildScanUrl(scene: string) {
   return `/scan?scene=${encodeURIComponent(scene)}`;

@@ -1,6 +1,6 @@
-import { fail, success } from "../../utils/response";
-import { requireAdminUser } from "../../utils/admin";
-import { getSystemSettings } from "../../utils/system-settings";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import { getSystemSettings } from "~~/server/utils/system-settings";
 
 export default defineEventHandler(async (event) => {
   try {

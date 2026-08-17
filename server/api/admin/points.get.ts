@@ -1,7 +1,7 @@
 import type { PointStatus } from "@prisma/client";
-import { fail, success } from "../../utils/response";
-import { requireAdminUser } from "../../utils/admin";
-import prisma from "../../utils/prisma";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import prisma from "~~/server/utils/prisma";
 
 export default defineEventHandler(async (event) => {
   try {

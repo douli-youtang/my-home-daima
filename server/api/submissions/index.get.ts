@@ -1,8 +1,8 @@
-import { fail, success } from "../../utils/response";
-import prisma from "../../utils/prisma";
-import { toSubmissionListItem } from "../../utils/submission-dto";
-import { resolveSubmitterNames } from "../../utils/submitter-names";
-import { getSubmissionPolicy } from "../../utils/system-settings";
+import { fail, success } from "~~/server/utils/response";
+import prisma from "~~/server/utils/prisma";
+import { toSubmissionListItem } from "~~/server/utils/submission-dto";
+import { resolveSubmitterNames } from "~~/server/utils/submitter-names";
+import { getSubmissionPolicy } from "~~/server/utils/system-settings";
 
 /**
  * GET /api/submissions?openid=
@@ -22,14 +22,14 @@ export default defineEventHandler(async (event) => {
       return fail("用户未登录");
     }
 
-    const user = await prisma.user.findUnique({ where: { openid } });
+    const user = await prisma.user.findUnique({ where: { openid }, include: { role: { select: { code: true } } } });
     if (!user || user.status !== "active") {
       setResponseStatus(event, 403);
       return fail("用户未授权");
     }
 
-    const isStaff = user.role === "admin" || user.role === "maintainer";
-    if (user.role !== "worker" && !isStaff) {
+    const isStaff = user.role.code === "admin" || user.role.code === "maintainer";
+    if (user.role.code !== "worker" && !isStaff) {
       setResponseStatus(event, 403);
       return fail("无权限查看");
     }

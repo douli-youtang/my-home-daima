@@ -1,4 +1,4 @@
-import { fail } from "../utils/response";
+import { fail } from "~~/server/utils/response";
 
 /** 已废弃，请改用 POST /api/submissions */
 export default defineEventHandler(async (event) => {

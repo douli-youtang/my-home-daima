@@ -1,9 +1,9 @@
-import { fail, success } from "../../utils/response";
-import { requireAdminUser } from "../../utils/admin";
-import { validateFields } from "../../utils/field-utils";
-import { createId } from "../../utils/id";
-import prisma from "../../utils/prisma";
-import type { FormFieldDefinition } from "../../utils/types/types/form-fields";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import { validateFields } from "~~/server/utils/field-utils";
+import { createId } from "~~/server/utils/id";
+import prisma from "~~/server/utils/prisma";
+import type { FormFieldDefinition } from "~~/shared/types/form-fields";
 
 /** PUT /api/admin/templates */
 export default defineEventHandler(async (event) => {

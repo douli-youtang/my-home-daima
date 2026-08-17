@@ -1,4 +1,4 @@
-import type { FieldType, FormFieldDefinition } from "~/lib/types/form-fields";
+import type { FieldType, FormFieldDefinition } from "../../shared/types/form-fields";
 
 export const ALLOWED_FIELD_TYPES: FieldType[] = [
   "text",

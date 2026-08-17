@@ -1,12 +1,12 @@
-import { fail, success } from "../../utils/response";
-import { requireAdminUser } from "../../utils/admin";
-import prisma from "../../utils/prisma";
-import { summarizeSubmissionData } from "../../utils/submission-utils";
-import { resolveSubmitterNames } from "../../utils/submitter-names";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import prisma from "~~/server/utils/prisma";
+import { summarizeSubmissionData } from "~~/server/utils/submission-utils";
+import { resolveSubmitterNames } from "~~/server/utils/submitter-names";
 import type {
   FormFieldDefinition,
   FormFieldValues,
-} from "../../utils/types/types/form-fields";
+} from "~~/shared/types/form-fields";
 
 /** GET /api/admin/records */
 export default defineEventHandler(async (event) => {

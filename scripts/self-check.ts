@@ -42,10 +42,15 @@ function fail(name: string, detail?: string): Check {
 async function main() {
   const checks: Check[] = [];
 
-  const admin = await prisma.user.findFirst({
-    where: { role: { code: "admin" }, status: "active" },
-    include: { role: true },
-  });
+  const admin =
+    (await prisma.user.findFirst({
+      where: { openid: "admin", status: "active" },
+      include: { role: true },
+    })) ||
+    (await prisma.user.findFirst({
+      where: { role: { code: "admin" }, status: "active" },
+      include: { role: true },
+    }));
   const worker = await prisma.user.findFirst({
     where: { role: { code: "worker" }, status: "active", openid: "worker_test" },
     include: { role: true },

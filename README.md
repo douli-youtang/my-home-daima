@@ -18,6 +18,8 @@ npm run dev
 - 作业端：`/worker/login`
 - 扫码填表：`/scan?scene=点位码`
 
+默认超级管理员：账号 `admin`，密码 `123456`。
+
 ## 技术栈
 
 - Nuxt 3 + Vue 3 + Element Plus

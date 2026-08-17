@@ -1,22 +1,22 @@
-import { fail, success } from "../../utils/response";
-import { createId } from "../../utils/id";
-import { findActiveSubmissionForPoint } from "../../utils/point-lock";
-import prisma from "../../utils/prisma";
-import { toSubmissionDetail } from "../../utils/submission-dto";
+import { fail, success } from "~~/server/utils/response";
+import { createId } from "~~/server/utils/id";
+import { findActiveSubmissionForPoint } from "~~/server/utils/point-lock";
+import prisma from "~~/server/utils/prisma";
+import { toSubmissionDetail } from "~~/server/utils/submission-dto";
 import {
   getPointLockUntil,
   pointLockMessage,
-} from "../../utils/submission-limits";
+} from "~~/server/utils/submission-limits";
 import {
   extractSubmittedBy,
   validateSubmissionData,
-} from "../../utils/submission-utils";
-import { resolveSubmitterNames } from "../../utils/submitter-names";
-import { getSubmissionPolicy } from "../../utils/system-settings";
+} from "~~/server/utils/submission-utils";
+import { resolveSubmitterNames } from "~~/server/utils/submitter-names";
+import { getSubmissionPolicy } from "~~/server/utils/system-settings";
 import type {
   FormFieldDefinition,
   FormFieldValues,
-} from "../../utils/types/types/form-fields";
+} from "~~/shared/types/form-fields";
 
 /**
  * POST /api/submissions
@@ -43,12 +43,12 @@ export default defineEventHandler(async (event) => {
       return fail("用户未登录");
     }
 
-    const user = await prisma.user.findUnique({ where: { openid } });
+    const user = await prisma.user.findUnique({ where: { openid }, include: { role: { select: { code: true } } } });
     if (!user || user.status !== "active") {
       setResponseStatus(event, 403);
       return fail("用户未授权");
     }
-    if (user.role !== "worker") {
+    if (user.role.code !== "worker") {
       setResponseStatus(event, 403);
       return fail("仅作业人员可提交表单");
     }

@@ -1,10 +1,10 @@
-import { fail, success } from "../../utils/response";
-import { findActiveSubmissionForPoint, pointLockMeta } from "../../utils/point-lock";
-import prisma from "../../utils/prisma";
-import { toSubmissionDetail } from "../../utils/submission-dto";
-import { formatPointLockHint } from "../../utils/submission-limits";
-import { resolveSubmitterNames } from "../../utils/submitter-names";
-import { getSubmissionPolicy } from "../../utils/system-settings";
+import { fail, success } from "~~/server/utils/response";
+import { findActiveSubmissionForPoint, pointLockMeta } from "~~/server/utils/point-lock";
+import prisma from "~~/server/utils/prisma";
+import { toSubmissionDetail } from "~~/server/utils/submission-dto";
+import { formatPointLockHint } from "~~/server/utils/submission-limits";
+import { resolveSubmitterNames } from "~~/server/utils/submitter-names";
+import { getSubmissionPolicy } from "~~/server/utils/system-settings";
 
 /**
  * GET /api/submissions/active?scene=&openid=
@@ -31,12 +31,12 @@ export default defineEventHandler(async (event) => {
       return fail("用户未登录");
     }
 
-    const user = await prisma.user.findUnique({ where: { openid } });
+    const user = await prisma.user.findUnique({ where: { openid }, include: { role: { select: { code: true } } } });
     if (!user || user.status !== "active") {
       setResponseStatus(event, 403);
       return fail("用户未授权");
     }
-    if (user.role !== "worker") {
+    if (user.role.code !== "worker") {
       setResponseStatus(event, 403);
       return fail("仅作业人员可扫码填表");
     }

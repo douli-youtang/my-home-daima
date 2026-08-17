@@ -1,7 +1,7 @@
-import { fail, success } from "../../../../utils/response";
-import { requireAdminUser } from "../../../../utils/admin";
-import prisma from "../../../../utils/prisma";
-import type { FormFieldValues } from "../../../../utils/types/types/form-fields";
+import { fail, success } from "~~/server/utils/response";
+import { requireAdminUser } from "~~/server/utils/admin";
+import prisma from "~~/server/utils/prisma";
+import type { FormFieldValues } from "~~/shared/types/form-fields";
 
 /** GET /api/admin/records/[id]/edits 后台查看修改记录 */
 export default defineEventHandler(async (event) => {
